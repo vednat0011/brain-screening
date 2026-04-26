@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SciCo Brain Screening | Cognitive Architecture Analysis</title>
+  <meta name="description" content="Discover your cognitive wiring through 25 scientifically designed questions. Map your brain's unique architecture.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg-primary: #020617;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.8);
+      --border-color: #334155;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --blue: #3b82f6;
+      --blue-dim: rgba(59, 130, 246, 0.15);
+      --blue-border: rgba(59, 130, 246, 0.3);
+      --pink: #ec4899;
+      --pink-dim: rgba(236, 72, 153, 0.15);
+      --pink-border: rgba(236, 72, 153, 0.3);
+      --amber: #f59e0b;
+      --amber-dim: rgba(245, 158, 11, 0.15);
+      --amber-border: rgba(245, 158, 11, 0.3);
+      --emerald: #10b981;
+      --emerald-dim: rgba(16, 185, 129, 0.15);
+      --emerald-border: rgba(16, 185, 129, 0.3);
+      --purple: #a855f7;
+      --purple-border: rgba(168, 85, 247, 0.3);
+      --cyan: #06b6d4;
+      --cyan-border: rgba(6, 182, 212, 0.3);
+    }
+    
+    html, body {
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary), var(--bg-primary));
+      min-height: 100vh;
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .screen { display: none; min-height: 100vh; }
+    .screen.active { display: flex; flex-direction: column; }
+    
+    #start-screen {
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    
+    .start-container {
+      max-width: 28rem;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .brain-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--purple), var(--pink), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 2rem;
+    }
+    
+    .info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    
+    .info-text {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+    
+    .dimensions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .dimension-item {
+      background: var(--bg-primary);
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .dimension-item.blue { border: 1px solid var(--blue-border); color: var(--blue); }
+    .dimension-item.pink { border: 1px solid var(--pink-border); color: var(--pink); }
+    .dimension-item.amber { border: 1px solid var(--amber-border); color: var(--amber); }
+    .dimension-item.emerald { border: 1px solid var(--emerald-border); color: var(--emerald); }
+    
+    .meta-info {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .user-info-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .user-info-card label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.375rem;
+    }
+
+    .user-info-card input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .user-info-card input:focus {
+      border-color: var(--purple);
+    }
+
+    .user-info-card input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .user-info-card input:last-child {
+      margin-bottom: 0;
+    }
+    
+    .start-btn {
+      width: 100%;
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(to right, #9333ea, #06b6d4);
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .start-btn:active { transform: scale(0.98); }
+    
+    .disclaimer-small {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 1rem;
+    }
+    
+    #question-screen {
+      flex-direction: column;
+    }
+    
+    .progress-bar {
+      height: 4px;
+      background: var(--bg-secondary);
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--purple), var(--cyan));
+      transition: width 0.3s ease;
+    }
+    
+    .question-counter {
+      text-align: center;
+      padding: 1rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    
+    .question-counter span { color: var(--text-primary); font-weight: 600; }
+    
+    .question-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    
+    .question-wrapper {
+      max-width: 32rem;
+      width: 100%;
+      opacity: 1;
+      transition: opacity 0.15s ease;
+    }
+    
+    .question-wrapper.fade-out {
+      opacity: 0;
+    }
+    
+    .question-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .question-text {
+      font-size: 1.125rem;
+      text-align: center;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 320px;
+    }
+    
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 1rem;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+    }
+    
+    .option-item.selected {
+      background: rgba(139, 92, 246, 0.3);
+      border-color: var(--purple);
+      color: var(--text-primary);
+    }
+    
+    .option-item.selected .option-number {
+      border-color: var(--purple);
+      background: var(--purple);
+      color: white;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .option-item:hover {
+        background: rgba(51, 65, 85, 0.5);
+        border-color: #475569;
+        color: var(--text-primary);
+      }
+    }
+    
+    .option-number {
+      width: 2rem;
+      height: 2rem;
+      border: 2px solid var(--text-muted);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+    }
+    
+    .question-hint {
+      text-align: center;
+      padding: 1rem;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+    
+    #result-screen {
+      padding: 1rem;
+      padding-top: 1.5rem;
+      padding-bottom: 2rem;
+      overflow-y: auto;
+    }
+    
+    .result-container {
+      max-width: 32rem;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .profile-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .profile-icon {
+      font-size: 3.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .profile-short {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    
+    .profile-desc-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .profile-desc {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+    
+    .archetype-card {
+      background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.1), rgba(6, 182, 212, 0.1));
+      border: 1px solid var(--purple-border);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    
+    .archetype-card.visible {
+      display: block;
+    }
+    
+    .archetype-title {
+      color: var(--purple);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    
+    .archetype-text {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+    
+    .scores-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .score-card {
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+    
+    .score-card.blue {
+      background: linear-gradient(to bottom right, var(--blue-dim), rgba(30, 58, 138, 0.3));
+      border: 1px solid var(--blue-border);
+    }
+    .score-card.pink {
+      background: linear-gradient(to bottom right, var(--pink-dim), rgba(157, 23, 77, 0.3));
+      border: 1px solid var(--pink-border);
+    }
+    .score-card.amber {
+      background: linear-gradient(to bottom right, var(--amber-dim), rgba(146, 64, 14, 0.3));
+      border: 1px solid var(--amber-border);
+    }
+    .score-card.emerald {
+      background: linear-gradient(to bottom right, var(--emerald-dim), rgba(6, 78, 59, 0.3));
+      border: 1px solid var(--emerald-border);
+    }
+    
+    .score-label {
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+    
+    .score-card.blue .score-label { color: var(--blue); }
+    .score-card.pink .score-label { color: var(--pink); }
+    .score-card.amber .score-label { color: var(--amber); }
+    .score-card.emerald .score-label { color: var(--emerald); }
+    
+    .score-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .score-max {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    
+    .score-extra {
+      font-size: 0.625rem;
+      color: var(--text-muted);
+      margin-top: 0.125rem;
+    }
+    
+    .score-bar {
+      height: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 3px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1s ease;
+    }
+    
+    .score-card.blue .score-bar-fill { background: var(--blue); }
+    .score-card.pink .score-bar-fill { background: var(--pink); }
+    .score-card.amber .score-bar-fill { background: var(--amber); }
+    .score-card.emerald .score-bar-fill { background: var(--emerald); }
+    
+    .map-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .map-title {
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .map-container {
+      position: relative;
+      height: 180px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+    }
+    
+    .map-axis-v {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--border-color);
+    }
+    
+    .map-axis-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border-color);
+    }
+    
+    .map-label {
+      position: absolute;
+      font-size: 0.625rem;
+      color: var(--text-muted);
+    }
+    
+    .map-label.top { top: 4px; left: 50%; transform: translateX(-50%); color: var(--amber); }
+    .map-label.bottom { bottom: 4px; left: 50%; transform: translateX(-50%); color: var(--emerald); }
+    .map-label.left { left: 4px; top: 50%; transform: translateY(-50%); color: var(--pink); }
+    .map-label.right { right: 4px; top: 50%; transform: translateY(-50%); color: var(--blue); }
+    
+    .map-dot {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      animation: dot-pulse 2s infinite;
+    }
+    
+    @keyframes dot-pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+      50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+    }
+    
+    .map-coords {
+      position: absolute;
+      bottom: 4px;
+      right: 8px;
+      font-size: 0.625rem;
+      color: var(--text-muted);
+    }
+    
+    .traits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .trait-card {
+      background: var(--bg-card);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+    }
+    
+    .trait-card.dominant { border: 1px solid var(--purple-border); }
+    .trait-card.secondary { border: 1px solid var(--cyan-border); }
+    
+    .trait-label {
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+    
+    .trait-card.dominant .trait-label { color: var(--purple); }
+    .trait-card.secondary .trait-label { color: var(--cyan); }
+    
+    .trait-name {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    
+    .disclaimer {
+      color: var(--text-muted);
+      font-size: 0.625rem;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      padding: 0 0.5rem;
+    }
+    
+    .retake-btn {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-family: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .retake-btn:hover { color: var(--text-primary); }
+    
+    @media (max-width: 400px) {
+      .title { font-size: 1.75rem; }
+      .question-text { font-size: 1rem; }
+      .profile-name { font-size: 1.25rem; }
+      .score-value { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <div class="start-container">
+      <div class="brain-icon">🧠</div>
+      <h1 class="title">SciCo Brain Screening</h1>
+      <p class="subtitle">Cognitive Architecture Analysis</p>
+      
+      <div class="user-info-card">
+        <label for="user-name">Your Name</label>
+        <input type="text" id="user-name" placeholder="Enter your full name" required>
+        <label for="user-college">College Name</label>
+        <input type="text" id="user-college" placeholder="Enter your college name" required>
+        <label for="user-dob">Date of Birth</label>
+        <input type="date" id="user-dob" required>
+      </div>
+
+      <div class="info-card">
+        <p class="info-text">Discover your cognitive wiring through 25 carefully designed questions mapping 4 dimensions:</p>
+        <div class="dimensions-grid">
+          <div class="dimension-item blue">🔬 Pattern Hunter</div>
+          <div class="dimension-item pink">💫 Social Smart</div>
+          <div class="dimension-item amber">⚡ Explorer</div>
+          <div class="dimension-item emerald">🎯 Stabilizer</div>
+        </div>
+        <p class="meta-info">⏱️ ~5 minutes • Rate statements 1-5</p>
+      </div>
+      
+      <button class="start-btn" id="start-btn">Begin Screening →</button>
+      <p class="disclaimer-small">This is a self-reflection tool, not a clinical diagnosis.</p>
+    </div>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="question-screen" class="screen">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="question-counter">
+      <span id="current-num">1</span> / 25
+    </div>
+    <div class="question-container">
+      <div class="question-wrapper" id="question-wrapper">
+        <div class="question-card">
+          <p class="question-text" id="question-text"></p>
+        </div>
+        <div class="options-list" id="options-list"></div>
+      </div>
+    </div>
+    <p class="question-hint">Choose what is TRUE most of the time</p>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen" class="screen">
+    <div class="result-container">
+      <div class="profile-header">
+        <div class="profile-icon" id="profile-icon">🌀</div>
+        <p id="result-user-info" style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.75rem;"></p>
+        <h1 class="profile-name" id="profile-name">Mixed Profile</h1>
+        <p class="profile-short" id="profile-short">Unique cognitive signature</p>
+      </div>
+      
+      <div class="profile-desc-card">
+        <p class="profile-desc" id="profile-desc"></p>
+      </div>
+      
+      <div class="archetype-card" id="archetype-card">
+        <div class="archetype-title">Archetype Interpretation</div>
+        <div class="archetype-text" id="archetype-text"></div>
+      </div>
+      
+      <div class="scores-grid">
+        <div class="score-card blue">
+          <div class="score-label">Pattern Hunter</div>
+          <div class="score-value"><span id="score-p">0</span><span class="score-max">/20</span></div>
+          <div class="score-bar"><div class="score-bar-fill" id="bar-p"></div></div>
+        </div>
+        <div class="score-card pink">
+          <div class="score-label">Social Smart</div>
+          <div class="score-value"><span id="score-s">0</span><span class="score-max">/20</span></div>
+          <div class="score-bar"><div class="score-bar-fill" id="bar-s"></div></div>
+        </div>
+        <div class="score-card amber">
+          <div class="score-label">Explorer</div>
+          <div class="score-value"><span id="score-e">0</span><span class="score-max">/25</span></div>
+          <div class="score-extra">normalized: <span id="score-e-norm">0</span>/20</div>
+          <div class="score-bar"><div class="score-bar-fill" id="bar-e"></div></div>
+        </div>
+        <div class="score-card emerald">
+          <div class="score-label">Stabilizer</div>
+          <div class="score-value"><span id="score-st">0</span><span class="score-max">/20</span></div>
+          <div class="score-bar"><div class="score-bar-fill" id="bar-st"></div></div>
+        </div>
+      </div>
+      
+      <div class="map-card">
+        <h3 class="map-title">Cognitive Map</h3>
+        <div class="map-container">
+          <div class="map-axis-v"></div>
+          <div class="map-axis-h"></div>
+          <span class="map-label top">Explorer ↑</span>
+          <span class="map-label bottom">↓ Stabilizer</span>
+          <span class="map-label left">S ←</span>
+          <span class="map-label right">→ P</span>
+          <div class="map-dot" id="map-dot"></div>
+          <span class="map-coords" id="map-coords">X:0 Y:0</span>
+        </div>
+      </div>
+      
+      <div class="traits-grid">
+        <div class="trait-card dominant">
+          <div class="trait-label">Dominant</div>
+          <div class="trait-name" id="dominant-trait">-</div>
+        </div>
+        <div class="trait-card secondary">
+          <div class="trait-label">Secondary</div>
+          <div class="trait-name" id="secondary-trait">-</div>
+        </div>
+      </div>
+      
+      <p class="disclaimer">⚠️ This screening does NOT diagnose autism, ADHD, OCD, anxiety, or any medical/psychiatric condition. It is a lightweight pattern-mapping tool using a short self-report questionnaire. Outputs describe style/traits/resembles patterns, not diagnosis. For clinical assessment, consult a qualified professional.</p>
+      
+      <button class="retake-btn" id="retake-btn">← Take Again</button>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      
+      // ==================== QUESTIONS (25 total) ====================
+      var questions = [
+        { id: 1, text: "I feel naturally comfortable when life follows a predictable routine or fixed structure.", domain: "St" },
+        { id: 2, text: "I often notice the emotional tension, mood shifts, or 'vibes' in a group without anyone saying anything.", domain: "S" },
+        { id: 3, text: "When I am stressed, I prefer logical analysis over emotional support.", domain: "P" },
+        { id: 4, text: "New ideas, new places, or new challenges excite me more than routine or familiarity.", domain: "E" },
+        { id: 5, text: "I tend to explore topics very deeply once I become interested, often researching until I fully understand them.", domain: "DUMMY" },
+        { id: 6, text: "I instinctively pay attention to small details, flaws, inconsistencies, or hidden patterns.", domain: "P" },
+        { id: 7, text: "I feel energized when I am around people, engaging with their emotions, stories, or reactions.", domain: "S" },
+        { id: 8, text: "Too much repetition makes me feel restless or bored quickly.", domain: "E" },
+        { id: 9, text: "I'm generally cautious about sudden changes and prefer when things stay steady and familiar.", domain: "St" },
+        { id: 10, text: "I usually understand how someone is feeling just by observing their face, voice tone, or body language.", domain: "S" },
+        { id: 11, text: "I enjoy breaking down complex problems into smaller, logical steps.", domain: "P" },
+        { id: 12, text: "I often feel more creative or mentally active during late-night hours.", domain: "DUMMY" },
+        { id: 13, text: "I get a thrill from taking calculated risks if the potential upside is big.", domain: "E" },
+        { id: 14, text: "I naturally take deadlines, responsibilities, and commitments very seriously.", domain: "St" },
+        { id: 15, text: "I sometimes feel anxious before meeting new people, but I become comfortable after interacting with them.", domain: "DUMMY" },
+        { id: 16, text: "I prefer environments where tools, systems, or technologies are involved — things I can analyze or understand logically.", domain: "P" },
+        { id: 17, text: "I often put effort into making sure my words don't emotionally hurt others.", domain: "S" },
+        { id: 18, text: "I love exploring unfamiliar places, ideas, or topics — even if they are risky or unpredictable.", domain: "E" },
+        { id: 19, text: "I feel more at peace when my daily routine stays consistent and well-structured.", domain: "St" },
+        { id: 20, text: "I usually check my phone notifications frequently, even when nothing important is happening.", domain: "DUMMY" },
+        { id: 21, text: "I prefer to speak only when I feel my opinion truly adds value to a discussion.", domain: "DUMMY" },
+        { id: 22, text: "I find it difficult to fully focus unless the environment feels controlled or familiar.", domain: "DUMMY" },
+        { id: 23, text: "I don't usually start tasks unless I feel the 'internal mood' or motivation for it.", domain: "DUMMY" },
+        { id: 24, text: "I generally enjoy working with background music — it improves my flow.", domain: "DUMMY" },
+        { id: 25, text: "When life becomes too predictable or stable, I instinctively seek something new or stimulating.", domain: "E" }
+      ];
+
+      // ==================== PROFILES ====================
+      var profiles = {
+        "Rare Hybrid profile - Polymathic potential": {
+          icon: "🧬",
+          short: "Mixed cognitive profile with high adaptability",
+          long: "You have a mixed cognitive profile with high adaptability. Double down on your strengths."
+        },
+        "Autistic-style Systemizing Pattern": {
+          icon: "🔬",
+          short: "High systemizing, pattern-focused cognition",
+          long: "Your profile shows a high systemizing–low social decoding pattern. This pattern is often seen in autistic-style cognitive wiring."
+        },
+        "ADHD-style Novelty Drive": {
+          icon: "⚡",
+          short: "High novelty-seeking, exploratory mind",
+          long: "Your high novelty drive combined with low stability mirrors ADHD-style exploratory cognition."
+        },
+        "OCD-style Obsessive Precision": {
+          icon: "🎯",
+          short: "Structure-driven, detail-obsessed cognition",
+          long: "Your strong stability + high pattern focus resembles an obsessive-precision cognitive style often associated with OCD-like tendencies."
+        },
+        "Empathic-Emotive Cognitive Style": {
+          icon: "💫",
+          short: "Heightened emotional sensitivity & social awareness",
+          long: "Your cognitive style shows heightened emotional sensitivity and strong mentalizing — a profile linked with empathic neurotypes and social anxiety tendencies."
+        },
+        "Sensory-Rigidity Profile": {
+          icon: "🔒",
+          short: "Stability and pattern-focused cognitive style",
+          long: "Your stability and pattern scores indicate a sensory-rigid style often seen in neurodivergent wiring."
+        },
+        "No Neurodivergence Signal": {
+          icon: "⚖️",
+          short: "Balanced neurotypical pattern",
+          long: "Your results suggest a balanced neurotypical pattern with no strong neurodivergence indicators."
+        }
+      };
+
+      // ==================== STATE VARIABLES ====================
+      var currentQuestion = 0;
+      var answers = {};
+      var isTransitioning = false;
+      var lastTouchTime = 0;
+
+      // ==================== DOM ELEMENTS (with null checks) ====================
+      var startScreen = document.getElementById('start-screen');
+      var questionScreen = document.getElementById('question-screen');
+      var resultScreen = document.getElementById('result-screen');
+      var questionText = document.getElementById('question-text');
+      var currentNum = document.getElementById('current-num');
+      var progressFill = document.getElementById('progress-fill');
+      var questionWrapper = document.getElementById('question-wrapper');
+      var optionsList = document.getElementById('options-list');
+
+      // ==================== HELPER: Safe DOM Update ====================
+      function safeSetText(id, text) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.textContent = text;
+        }
+      }
+
+      function safeSetStyle(id, prop, value) {
+        var el = document.getElementById(id);
+        if (el && el.style) {
+          el.style[prop] = value;
+        }
+      }
+
+      function safeAddClass(el, className) {
+        if (el && el.classList) {
+          el.classList.add(className);
+        }
+      }
+
+      function safeRemoveClass(el, className) {
+        if (el && el.classList) {
+          el.classList.remove(className);
+        }
+      }
+
+      // ==================== SCREEN NAVIGATION ====================
+      function showScreen(screen) {
+        if (!screen) return;
+        safeRemoveClass(startScreen, 'active');
+        safeRemoveClass(questionScreen, 'active');
+        safeRemoveClass(resultScreen, 'active');
+        safeAddClass(screen, 'active');
+      }
+
+      // ==================== OPTION TAP HANDLER ====================
+      function handleOptionTap(element, value) {
+        // Block if already transitioning
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        // Safety check for questions array
+        if (currentQuestion < 0 || currentQuestion >= questions.length) {
+          isTransitioning = false;
+          return;
+        }
+
+        // Store answer
+        var questionId = questions[currentQuestion].id;
+        answers[questionId] = value;
+
+        // Show selection feedback
+        safeAddClass(element, 'selected');
+
+        // Wait for user to see selection, then fade out
+        setTimeout(function() {
+          safeAddClass(questionWrapper, 'fade-out');
+        }, 150);
+
+        // After fade, clear and show next
+        setTimeout(function() {
+          // Clear options completely
+          if (optionsList) {
+            optionsList.innerHTML = '';
+          }
+          
+          if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            renderQuestion();
+            safeRemoveClass(questionWrapper, 'fade-out');
+          } else {
+            showResults();
+          }
+          isTransitioning = false;
+        }, 300);
+      }
+
+      // ==================== RENDER QUESTION ====================
+      function renderQuestion() {
+        // Safety checks
+        if (!optionsList || !questionText || !currentNum || !progressFill) return;
+        if (currentQuestion < 0 || currentQuestion >= questions.length) return;
+
+        var q = questions[currentQuestion];
+        questionText.textContent = '"' + q.text + '"';
+        currentNum.textContent = currentQuestion + 1;
+        progressFill.style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
+        
+        // Clear options
+        optionsList.innerHTML = '';
+        
+        var labels = ['Strongly Disagree', 'Disagree', 'Neutral', 'Agree', 'Strongly Agree'];
+        
+        // Build fresh options
+        for (var i = 0; i < 5; i++) {
+          (function(val, label) {
+            var div = document.createElement('div');
+            div.className = 'option-item';
+            
+            var numSpan = document.createElement('span');
+            numSpan.className = 'option-number';
+            numSpan.textContent = val;
+            
+            var labelSpan = document.createElement('span');
+            labelSpan.textContent = label;
+            
+            div.appendChild(numSpan);
+            div.appendChild(labelSpan);
+            
+            // TOUCH HANDLER - records timestamp and handles tap
+            div.addEventListener('touchend', function(e) {
+              e.preventDefault();
+              lastTouchTime = Date.now();
+              handleOptionTap(div, val);
+            }, {passive: false});
+            
+            // CLICK HANDLER - blocks ghost clicks within 700ms of touch
+            div.addEventListener('click', function(e) {
+              if (Date.now() - lastTouchTime < 700) {
+                e.preventDefault();
+                return;
+              }
+              handleOptionTap(div, val);
+            });
+            
+            optionsList.appendChild(div);
+          })(i + 1, labels[i]);
+        }
+      }
+
+      // ==================== START QUIZ ====================
+      function startQuiz() {
+        // Validate user info fields
+        var nameEl = document.getElementById('user-name');
+        var collegeEl = document.getElementById('user-college');
+        var dobEl = document.getElementById('user-dob');
+        
+        if (!nameEl.value.trim() || !collegeEl.value.trim() || !dobEl.value) {
+          alert('Please fill in your Name, College Name, and Date of Birth before starting.');
+          return;
+        }
+
+        // Reset ALL state
+        currentQuestion = 0;
+        answers = {};
+        isTransitioning = false;
+        lastTouchTime = 0;
+        
+        // Clear any previous state
+        safeRemoveClass(questionWrapper, 'fade-out');
+        if (optionsList) {
+          optionsList.innerHTML = '';
+        }
+        
+        // Show question screen and render first question
+        showScreen(questionScreen);
+        renderQuestion();
+      }
+
+      // ==================== SCORING LOGIC (v4) ====================
+      function calculateScores() {
+        // P = Pattern Hunter (questions 3, 6, 11, 16)
+        var P = (answers[3] || 0) + (answers[6] || 0) + (answers[11] || 0) + (answers[16] || 0);
+        
+        // S = Social Smart (questions 2, 7, 10, 17)
+        var S = (answers[2] || 0) + (answers[7] || 0) + (answers[10] || 0) + (answers[17] || 0);
+        
+        // St = Stabilizer (questions 1, 9, 14, 19)
+        var St = (answers[1] || 0) + (answers[9] || 0) + (answers[14] || 0) + (answers[19] || 0);
+        
+        // E = Explorer (questions 4, 8, 13, 18, 25) - 5 items, max 25
+        var E_raw = (answers[4] || 0) + (answers[8] || 0) + (answers[13] || 0) + (answers[18] || 0) + (answers[25] || 0);
+        
+        // Normalize E to 20-point scale: E_20 = E_raw * 0.8
+        var E_20 = Math.round(E_raw * 0.8 * 10) / 10;
+        
+        // Calculate gaps for profile classification
+        var P_gap = P - S;
+        var S_gap = S - P;
+        var E_gap = E_20 - St;
+        
+        // Map coordinates
+        var X = P - S;
+        var Y = E_20 - St;
+        
+        // Build sorted scores list for archetype detection
+        var scoresList = [
+          { name: "Pattern Hunter", code: "P", score: P },
+          { name: "Social Smart", code: "S", score: S },
+          { name: "Explorer", code: "E", score: E_20 },
+          { name: "Stabilizer", code: "St", score: St }
+        ];
+        scoresList.sort(function(a, b) { return b.score - a.score; });
+        
+        // Extract sorted scores
+        var Top1 = scoresList[0].score;
+        var Top2 = scoresList[1].score;
+        var Top3 = scoresList[2].score;
+        var Top4 = scoresList[3].score;
+        
+        return {
+          P: P,
+          S: S,
+          St: St,
+          E_raw: E_raw,
+          E_20: E_20,
+          P_gap: P_gap,
+          S_gap: S_gap,
+          E_gap: E_gap,
+          X: X,
+          Y: Y,
+          scoresList: scoresList,
+          traitSpread: Top1 - Top4,
+          topTwoDeviance: Top1 - Top2,
+          secondThirdGap: Top2 - Top3,
+          dominant: scoresList[0],
+          secondary: scoresList[1]
+        };
+      }
+
+      // ==================== PROFILE CLASSIFICATION (v4 Logic) ====================
+      function classifyProfile(r) {
+        // 1. Polymathic (Rare Hybrid) - must check first
+        if (r.P >= 15 && r.S >= 15 && r.St >= 14 && r.E_raw >= 19 && r.traitSpread <= 4) {
+          return { profile: "Rare Hybrid profile - Polymathic potential", archetype: null };
+        }
+        
+        // 2. AST (Autistic-style Systemizing Pattern)
+        if (r.P >= 15 && r.S <= 10 && r.P_gap >= 6) {
+          return { profile: "Autistic-style Systemizing Pattern", archetype: null };
+        }
+        
+        // 3. ND (ADHD-style Novelty Drive)
+        if (r.E_20 >= 16 && r.St <= 10 && r.E_gap >= 6) {
+          return { profile: "ADHD-style Novelty Drive", archetype: null };
+        }
+        
+        // 4. OPCS (OCD-style Obsessive Precision)
+        if (r.St >= 15 && r.P >= 14 && r.E_20 <= 9) {
+          return { profile: "OCD-style Obsessive Precision", archetype: null };
+        }
+        
+        // 5. EECS (Empathic-Emotive Cognitive Style)
+        if (r.S >= 15 && r.P <= 11 && r.S_gap >= 5) {
+          return { profile: "Empathic-Emotive Cognitive Style", archetype: null };
+        }
+        
+        // 6. SRP (Sensory-Rigidity Profile)
+        if (r.St >= 16 && r.P >= 13 && r.S <= 11) {
+          return { profile: "Sensory-Rigidity Profile", archetype: null };
+        }
+        
+        // 7. No Neurodivergence Signal - all scores moderate, low spread
+        if (r.P >= 10 && r.P <= 14 && 
+            r.S >= 10 && r.S <= 14 && 
+            r.St >= 10 && r.St <= 14 && 
+            r.E_20 >= 10 && r.E_20 <= 14 && 
+            Math.abs(r.P_gap) < 6 && 
+            Math.abs(r.E_gap) < 6) {
+          return { profile: "No Neurodivergence Signal", archetype: buildArchetypeText(r) };
+        }
+        
+        // 8. Fallback - use archetype interpretation
+        return { profile: null, archetype: buildArchetypeText(r) };
+      }
+
+      // ==================== ARCHETYPE TEXT BUILDER ====================
+      function buildArchetypeText(r) {
+        var lines = [];
+        
+        var isHybrid = r.topTwoDeviance < 4;
+        var isLeaning = r.topTwoDeviance >= 4;
+        var isDualLeaning = r.secondThirdGap >= 4;
+        
+        if (isHybrid) {
+          lines.push("Hybrid cognitive archetype — strong adaptability. Double down on your strengths.");
+        }
+        
+        if (isLeaning) {
+          lines.push(r.dominant.name + " leaning cognitive archetype. Mild neurodivergent traits/tilt. Strong adaptability in specific domains — consider doubling down on your strengths.");
+        }
+        
+        if (isDualLeaning) {
+          lines.push("Two leaning archetypes at the same time: " + r.dominant.name + " + " + r.secondary.name + " leaning.");
+        }
+        
+        return lines.length > 0 ? lines.join("\n\n") : null;
+      }
+
+      // ==================== SHOW RESULTS ====================
+      function showResults() {
+        try {
+          var r = calculateScores();
+          var classification = classifyProfile(r);
+          
+          var profileName, profileIcon, profileShort, profileLong;
+          
+          // Get profile data with safety check
+          if (classification.profile && profiles[classification.profile]) {
+            var p = profiles[classification.profile];
+            profileName = classification.profile;
+            profileIcon = p.icon;
+            profileShort = p.short;
+            profileLong = p.long;
+          } else {
+            // Fallback for unmatched profiles
+            profileName = r.dominant.name + " Dominant";
+            var iconMap = { P: '🔬', S: '💫', E: '⚡', St: '🎯' };
+            profileIcon = iconMap[r.dominant.code] || '🌀';
+            profileShort = "Cognitive archetype identified";
+            profileLong = "Your cognitive profile shows a distinct pattern. See archetype interpretation below for details.";
+          }
+          
+          // Update user info on results
+          var userName = document.getElementById('user-name').value.trim();
+          var userCollege = document.getElementById('user-college').value.trim();
+          var userDob = document.getElementById('user-dob').value;
+          var infoEl = document.getElementById('result-user-info');
+          if (infoEl) {
+            infoEl.innerHTML = userName + ' &bull; ' + userCollege + ' &bull; DOB: ' + userDob;
+          }
+          
+          // Update profile section
+          safeSetText('profile-icon', profileIcon);
+          safeSetText('profile-name', profileName);
+          safeSetText('profile-short', profileShort);
+          safeSetText('profile-desc', profileLong);
+          
+          // Update archetype card
+          var archetypeCard = document.getElementById('archetype-card');
+          if (classification.archetype) {
+            safeAddClass(archetypeCard, 'visible');
+            safeSetText('archetype-text', classification.archetype);
+          } else {
+            safeRemoveClass(archetypeCard, 'visible');
+          }
+          
+          // Update score displays
+          safeSetText('score-p', r.P);
+          safeSetText('score-s', r.S);
+          safeSetText('score-e', r.E_raw);
+          safeSetText('score-e-norm', r.E_20);
+          safeSetText('score-st', r.St);
+          
+          // Reset bars to 0
+          safeSetStyle('bar-p', 'width', '0%');
+          safeSetStyle('bar-s', 'width', '0%');
+          safeSetStyle('bar-e', 'width', '0%');
+          safeSetStyle('bar-st', 'width', '0%');
+          
+          // Animate bars after short delay
+          setTimeout(function() {
+            safeSetStyle('bar-p', 'width', (r.P / 20 * 100) + '%');
+            safeSetStyle('bar-s', 'width', (r.S / 20 * 100) + '%');
+            safeSetStyle('bar-e', 'width', (r.E_raw / 25 * 100) + '%');
+            safeSetStyle('bar-st', 'width', (r.St / 20 * 100) + '%');
+          }, 100);
+          
+          // Calculate map dot position (clamped to -15 to +15 range)
+          var clampedX = Math.min(Math.max(r.X, -15), 15);
+          var clampedY = Math.min(Math.max(r.Y, -15), 15);
+          var dotX = 50 + clampedX * 2.5;
+          var dotY = 50 - clampedY * 2.5;
+          
+          safeSetStyle('map-dot', 'left', dotX + '%');
+          safeSetStyle('map-dot', 'top', dotY + '%');
+          
+          // Format coordinates display
+          var xSign = r.X > 0 ? '+' : '';
+          var ySign = r.Y > 0 ? '+' : '';
+          var yRounded = Math.round(r.Y * 10) / 10;
+          safeSetText('map-coords', 'X:' + xSign + r.X + ' Y:' + ySign + yRounded);
+          
+          // Update trait cards
+          safeSetText('dominant-trait', r.dominant.name);
+          safeSetText('secondary-trait', r.secondary.name);
+          
+          // Show results screen
+          showScreen(resultScreen);
+          
+          // Silently send results to Google Sheet
+          sendToGoogleSheet(userName, userCollege, userDob, r, profileName);
+          
+        } catch (error) {
+          console.error('Error in showResults:', error);
+          // Fallback: show results screen anyway
+          showScreen(resultScreen);
+        }
+      }
+
+      // ==================== SEND TO GOOGLE SHEET (PRIVATE) ====================
+      function sendToGoogleSheet(name, college, dob, r, profileName) {
+        // REPLACE THIS URL with your Google Apps Script Web App URL
+        var SHEET_URL = 'https://script.google.com/macros/s/AKfycbw4tScnPSRRlk-zKIBpzwSVvDNmqzSpt2zSiLc6EiOior32xbuRXPsUYQNTMjCv44ro/exec';
+        
+        if (SHEET_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+          console.log('Google Sheet URL not configured. Skipping data send.');
+          return;
+        }
+        
+        var data = {
+          timestamp: new Date().toISOString(),
+          name: name,
+          college: college,
+          dob: dob,
+          patternHunter: r.P,
+          socialSmart: r.S,
+          explorer_raw: r.E_raw,
+          explorer_normalized: r.E_20,
+          stabilizer: r.St,
+          dominant: r.dominant.name,
+          secondary: r.secondary.name,
+          profile: profileName,
+          mapX: r.X,
+          mapY: Math.round(r.Y * 10) / 10
+        };
+        
+        try {
+          fetch(SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+        } catch (e) {
+          // Silently fail - don't affect user experience
+        }
+      }
+
+      // ==================== RESTART QUIZ ====================
+      function restartQuiz() {
+        // Reset ALL state variables (defensive)
+        currentQuestion = 0;
+        answers = {};
+        isTransitioning = false;
+        lastTouchTime = 0;
+        
+        // Reset UI elements
+        safeSetStyle('bar-p', 'width', '0%');
+        safeSetStyle('bar-s', 'width', '0%');
+        safeSetStyle('bar-e', 'width', '0%');
+        safeSetStyle('bar-st', 'width', '0%');
+        
+        var archetypeCard = document.getElementById('archetype-card');
+        safeRemoveClass(archetypeCard, 'visible');
+        safeRemoveClass(questionWrapper, 'fade-out');
+        
+        // Clear options list
+        if (optionsList) {
+          optionsList.innerHTML = '';
+        }
+        
+        // Show start screen
+        showScreen(startScreen);
+      }
+
+      // ==================== EVENT LISTENERS ====================
+      var startBtn = document.getElementById('start-btn');
+      var retakeBtn = document.getElementById('retake-btn');
+      
+      if (startBtn) {
+        startBtn.addEventListener('click', startQuiz);
+      }
+      
+      if (retakeBtn) {
+        retakeBtn.addEventListener('click', restartQuiz);
+      }
+
+      // ==================== GLOBAL ERROR HANDLER ====================
+      window.onerror = function(msg, url, lineNo, colNo, error) {
+        console.error('Quiz Error:', msg, 'at line', lineNo);
+        // Don't crash - allow quiz to continue
+        return true;
+      };
+
+      // Catch unhandled promise rejections
+      window.onunhandledrejection = function(event) {
+        console.error('Unhandled rejection:', event.reason);
+        return true;
+      };
+
+    })();
+  </script>
+
+</body>
+</html>
