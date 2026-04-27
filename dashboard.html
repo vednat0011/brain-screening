@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SciCo Dashboard | Global Map</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg-primary: #020617;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.8);
+      --border-color: #334155;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --blue: #3b82f6;
+      --pink: #ec4899;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --purple: #a855f7;
+      --cyan: #06b6d4;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to bottom, var(--bg-primary), var(--bg-secondary), var(--bg-primary));
+      min-height: 100vh;
+      color: var(--text-primary);
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .title {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--purple), var(--pink), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .map-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    .map-title {
+      color: var(--text-primary);
+      font-size: 1.25rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .map-container {
+      position: relative;
+      height: 400px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .map-axis-v {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--border-color);
+    }
+    
+    .map-axis-h {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    .map-label {
+      position: absolute;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 0.5rem;
+      background: rgba(2, 6, 23, 0.7);
+      border-radius: 0.25rem;
+    }
+    
+    .map-label.top { top: 8px; left: 50%; transform: translateX(-50%); color: var(--amber); }
+    .map-label.bottom { bottom: 8px; left: 50%; transform: translateX(-50%); color: var(--emerald); }
+    .map-label.left { left: 8px; top: 50%; transform: translateY(-50%); color: var(--pink); }
+    .map-label.right { right: 8px; top: 50%; transform: translateY(-50%); color: var(--blue); }
+
+    .user-dot {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .user-dot:hover {
+      transform: translate(-50%, -50%) scale(1.5);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+      z-index: 10;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 20;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+
+    .tooltip .name { font-weight: bold; color: var(--cyan); margin-bottom: 0.25rem; font-size: 0.875rem;}
+    .tooltip .profile { color: var(--text-secondary); margin-bottom: 0.25rem;}
+    .tooltip .coords { color: var(--text-muted); font-family: monospace; }
+
+    .stats {
+      margin-top: 1.5rem;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--cyan);
+      font-weight: 500;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1 class="title">SciCo Global Dashboard</h1>
+      <p style="color: var(--text-muted);">Live Cognitive Architecture Mapping</p>
+    </div>
+
+    <div class="map-card">
+      <h3 class="map-title">Global Population Map</h3>
+      <div class="map-container" id="map-container">
+        <div class="map-axis-v"></div>
+        <div class="map-axis-h"></div>
+        <span class="map-label top">Explorer ↑</span>
+        <span class="map-label bottom">↓ Stabilizer</span>
+        <span class="map-label left">S ←</span>
+        <span class="map-label right">→ P</span>
+        <div class="loading" id="loading-indicator">Loading live data...</div>
+      </div>
+      <div class="stats" id="stats-container">
+        Total participants: 0
+      </div>
+    </div>
+  </div>
+
+  <div class="tooltip" id="tooltip">
+    <div class="name" id="tt-name"></div>
+    <div class="profile" id="tt-profile"></div>
+    <div class="coords" id="tt-coords"></div>
+  </div>
+
+  <script>
+    // ⚠️ REPLACE THIS WITH YOUR APPS SCRIPT URL ⚠️
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4tScnPSRRlk-zKIBpzwSVvDNmqzSpt2zSiLc6EiOior32xbuRXPsUYQNTMjCv44ro/exec';
+
+    const mapContainer = document.getElementById('map-container');
+    const tooltip = document.getElementById('tooltip');
+    
+    async function loadData() {
+      try {
+        const response = await fetch(SCRIPT_URL);
+        const data = await response.json();
+        
+        document.getElementById('loading-indicator').style.display = 'none';
+        document.getElementById('stats-container').textContent = 'Total participants: ' + data.length;
+
+        data.forEach(user => {
+          // Clamp values to -15 to +15 range just like the main app
+          const clampedX = Math.min(Math.max(user.mapX, -15), 15);
+          const clampedY = Math.min(Math.max(user.mapY, -15), 15);
+          
+          // Convert to percentages
+          const leftPercent = 50 + clampedX * 2.5;
+          const topPercent = 50 - clampedY * 2.5;
+
+          // Create dot
+          const dot = document.createElement('div');
+          dot.className = 'user-dot';
+          dot.style.left = leftPercent + '%';
+          dot.style.top = topPercent + '%';
+
+          // Assign random color tint based on quadrant to look cool
+          if(user.mapX > 0 && user.mapY > 0) dot.style.background = '#eab308'; // Top Right
+          else if(user.mapX > 0 && user.mapY < 0) dot.style.background = '#10b981'; // Bottom Right
+          else if(user.mapX < 0 && user.mapY > 0) dot.style.background = '#ec4899'; // Top Left
+          else dot.style.background = '#a855f7'; // Bottom Left
+
+          // Hover events for tooltip
+          dot.addEventListener('mouseenter', (e) => {
+            document.getElementById('tt-name').textContent = user.name;
+            document.getElementById('tt-profile').textContent = user.profile;
+            document.getElementById('tt-coords').textContent = `X: ${user.mapX} | Y: ${user.mapY}`;
+            
+            tooltip.style.opacity = '1';
+            tooltip.style.left = (e.pageX + 15) + 'px';
+            tooltip.style.top = (e.pageY + 15) + 'px';
+          });
+
+          dot.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+          });
+
+          dot.addEventListener('mousemove', (e) => {
+            tooltip.style.left = (e.pageX + 15) + 'px';
+            tooltip.style.top = (e.pageY + 15) + 'px';
+          });
+
+          mapContainer.appendChild(dot);
+        });
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        document.getElementById('loading-indicator').textContent = 'Failed to load data. Is the App Script deployed correctly?';
+      }
+    }
+
+    // Load data on start
+    loadData();
+    
+    // Refresh data every 30 seconds
+    setInterval(loadData, 30000);
+  </script>
+</body>
+</html>
